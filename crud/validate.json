@@ -1,0 +1,12 @@
+{ "doc": {
+    "_id" : "_design/samples",
+    "views" : {
+      "count": {
+        "map" : "function(doc){ emit(doc.type, 1)}",
+        "reduce": "function(key, values) { return sum(values) }"
+      },
+      "persons": {
+         "map": "function(doc){ if(doc.type == 'person') emit(doc.type, doc.name) }"
+      }
+    }
+  } }
