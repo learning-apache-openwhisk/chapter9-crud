@@ -21,12 +21,17 @@ crud.zip: *.py
 	zip crud.zip *.py
 
 clean:
-	wsk action delete crud/main
-	wsk package delete crud 
-	wsk package delete cruddb
-	rm bind.done
+	-wsk action invoke cruddb/delete-database
+	-wsk action delete crud/main
+	-wsk package delete crud 
+	-wsk package delete cruddb
+	-rm bind.done
+	-rm package.done
 
 test:
+	python3 crud.py
+	
+invoke:
 	wsk action invoke crud/main -r
 
 .PHONY: deploy clean test
