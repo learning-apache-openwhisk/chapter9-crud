@@ -1,4 +1,4 @@
-import crud
+import model
 import rest
 db = "demodb"
 dtype = "contact"
@@ -57,31 +57,31 @@ def delete(id):
 # import importlib ; importlib.reload(rest);importlib.reload(crud) ; crud.init("demodb","test")
 def test():
     """
-    >>> import rest,crud,json
+    >>> import rest,model,json
     >>> rest.load_props()
-    >>> crud.init("demodb","test")
+    >>> model.init("demodb","test")
     >>> args = {"name": "Mike", "email":"msciab@gmail.com"}
-    >>> x = crud.insert(args)
-    >>> res = crud.find()
+    >>> x = model.insert(args)
+    >>> res = model.find()
     >>> rec = res["docs"][0]
     >>> print(rec["name"])
     Mike
     >>> rec["name"] = "Michele"
-    >>> id1 = crud.update(rec)
-    >>> res = crud.find()
+    >>> id1 = model.update(rec)
+    >>> res = model.find()
     >>> fnd = res["docs"][0]
     >>> print(fnd["name"])
     Michele
     >>> args = {"name":"Miri","email":"miri@sc.com"}
     >>> nid = "test-miri"
-    >>> x = crud.insert(args, nid)
-    >>> res = crud.find(nid)
+    >>> x = model.insert(args, nid)
+    >>> res = model.find(nid)
     >>> snd = res["docs"][0]
     >>> print(snd["name"])
     Miri
-    >>> x = crud.delete(id1) 
-    >>> x = crud.delete(nid)
-    >>> res = crud.find()
+    >>> x = model.delete(id1) 
+    >>> x = model.delete(nid)
+    >>> res = model.find()
     >>> print(res["docs"])
     []
     """

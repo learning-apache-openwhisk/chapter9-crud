@@ -27,9 +27,13 @@ clean:
 	-wsk package delete cruddb
 	-rm bind.done
 	-rm package.done
+	-rm crud.zip
 
 test:
-	python3 crud.py
+	python3 model.py
+	python3 view.py
+	python3 control.py
+
 	
 invoke:
 	wsk action invoke crud/main -r

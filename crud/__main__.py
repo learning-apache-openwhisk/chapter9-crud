@@ -1,10 +1,9 @@
-import crud
-import website
-
+import control
+import model
 def main(args):
-    crud.init("demodb", "contact")
-    return website.main(args)
-
+    model.init(args["db"], "contact")
+    return control.main(args)
+ 
 if __name__ == "__main__":
     import json, sys, rest
     rest.load_props()

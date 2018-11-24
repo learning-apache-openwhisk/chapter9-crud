@@ -16,10 +16,3 @@ cat <<EOF >_cloudant.json
 }
 EOF
 
-cat <<EOF >init.sh 
-$ export CLOUDANT_USER="$CLOUDANT_USER" 
-$ export CLOUDANT_PASS="$CLOUDANT_PASS"
-$ export URL="https://$CLOUDANT_USER.cloudant.com"
-$ export AUTH="$CLOUDANT_USER:$CLOUDANT_PASS"
-
-EOF
