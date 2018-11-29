@@ -29,12 +29,12 @@ clean:
 	-rm package.done
 	-rm crud.zip
 
-test:
+test: bind.done
 	python3 model.py
 	python3 view.py
 	python3 control.py
 
-	
+
 invoke:
 	wsk action invoke crud/main -r
 

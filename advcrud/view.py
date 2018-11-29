@@ -70,7 +70,7 @@ def rows(docs):
 """ % (row["id"], row["name"], row["email"])
   return res+"</tbody>"
 
-def table(data):
+def table(data, bookmark, error=None):
     """
     >>> from bs4 import BeautifulSoup as BS
     >>> import view
@@ -88,6 +88,12 @@ def table(data):
     </tbody>
     """
     res = ""
+    if error:
+      res += """
+<div class="alert alert-danger" 
+ role="alert"><b>Error</b>: %s <br>
+ <a href="javascript:window.history.back()">Retry</a>
+</div>""" % error
     res += """
 <form method="get">
  <table class="table">
@@ -99,6 +105,15 @@ def table(data):
     </tr>
   </thead>"""
     res += rows(data)
+    if bookmark:
+      button = """
+      <button name="bookmark" value="%s" type="submit" 
+       class="btn btn-default">More...</button> 
+       """ % bookmark
+    else:
+      button = """
+      <button name="bookmark" value="" type="submit" 
+       class="btn btn-default">Restart...</button>""" 
     res += """
   <tfoot>
     <tr>
@@ -109,11 +124,13 @@ def table(data):
        class="btn btn-default">Edit Contact</button>
        <button name="op" value="delete" type="submit" 
        class="btn btn-default">Delete Contact</button>
+       %s   
      </td>
    <tr>
   </tfoot>
  </table>
-</form>"""    
+</form>
+""" % button
     return res
 
 """
@@ -134,7 +151,7 @@ def form(args):
     id = """<input type="hidden" 
       name="id" value="%s">""" % (args["id"])
   return """
-<form method="get">
+<form method="post">
   %s
   <input type="hidden" name="op" value="save">
   <div class="form-group">
