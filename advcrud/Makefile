@@ -45,8 +45,9 @@ clean:
 
 
 test: bind.done
-	python3 model.py
 	python3 view.py
 	python3 control.py
+	python3 model.py
+	python3 __main__.py
 
 .PHONY: deploy clean test

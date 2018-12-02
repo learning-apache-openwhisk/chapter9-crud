@@ -1,7 +1,13 @@
 import model
 import view
 
+# test support
+spy = {}
+def inspect(x): 
+   global spy 
+   spy = x.copy()
 
+# parsing form in multidata format
 def form_parse(args):
     """
 >>> import control
@@ -13,8 +19,9 @@ def form_parse(args):
 hello h@l.o
 >>> photo = files["photo"].file.read()
 >>> photo_type = files["photo"].content_type
->>> print("%s %s" % (photo, photo_type))
-b'hello\n' text/plain
+>>> print("%s%s" % (photo.decode("ascii"), photo_type))
+hello
+text/plain
 """
     import io, base64, multipart
     body = args.get("__ow_body")
@@ -81,12 +88,14 @@ def main(args):
   >>> args = {"__ow_method":"post", "__ow_body":body, "__ow_headers": {"content-type": ctype} }
   >>> _ = control.main(args)
   >>> print(control.spy)
-  {'name': 'Miri', 'email': 'm@d.g'}
+  {'name': 'hello', 'email': 'h@l.o'}
   >>> model.update = control.inspect
-  >>> args = {"op":"save", "id": "1", "name":"Mike","email":"m@s.c"}
+  >>> ctype = "multipart/form-data; boundary=------------------------7a256bc140953925"
+  >>> body = "LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS03YTI1NmJjMTQwOTUzOTI1DQpDb250ZW50LURpc3Bvc2l0aW9uOiBmb3JtLWRhdGE7IG5hbWU9Im5hbWUiDQoNCm1pa2UNCi0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tN2EyNTZiYzE0MDk1MzkyNQ0KQ29udGVudC1EaXNwb3NpdGlvbjogZm9ybS1kYXRhOyBuYW1lPSJlbWFpbCINCg0KbUBzLmMNCi0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tN2EyNTZiYzE0MDk1MzkyNQ0KQ29udGVudC1EaXNwb3NpdGlvbjogZm9ybS1kYXRhOyBuYW1lPSJpZCINCg0KMTIzDQotLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLTdhMjU2YmMxNDA5NTM5MjUtLQ0K"
+  >>> args = {"__ow_method":"post", "__ow_body":body, "__ow_headers": {"content-type": ctype} }
   >>> x = control.main(args)
   >>> print(control.spy)
-  {'id': '1', 'name': 'Mike', 'email': 'm@s.c'}
+  {'id': '123', 'name': 'mike', 'email': 'm@s.c'}
     """
     # extract photo
     if "__ow_path" in args:
@@ -133,31 +142,6 @@ def main(args):
     if model.last_error:
       model.last_error = None
     return { "body": view.wrap(body) }
-
-# test support
-spy = {}
-def inspect(x): 
-   global spy 
-   spy = x.copy()
-
-# integration test
-def test_save_load():
-  """
->>> import model, control, rest
->>> model.init("advcruddb", "test", 2)
->>> rest.load_props()
->>> model.clean()
->>> body = "LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS05NTc0MmEwYmJkOGE5MjU3DQpDb250ZW50LURpc3Bvc2l0aW9uOiBmb3JtLWRhdGE7IG5hbWU9InBob3RvIjsgZmlsZW5hbWU9ImhlbGxvLnR4dCINCkNvbnRlbnQtVHlwZTogdGV4dC9wbGFpbg0KDQpoZWxsbwoNCi0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tOTU3NDJhMGJiZDhhOTI1Nw0KQ29udGVudC1EaXNwb3NpdGlvbjogZm9ybS1kYXRhOyBuYW1lPSJuYW1lIg0KDQpoZWxsbw0KLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS05NTc0MmEwYmJkOGE5MjU3DQpDb250ZW50LURpc3Bvc2l0aW9uOiBmb3JtLWRhdGE7IG5hbWU9ImVtYWlsIg0KDQpoQGwubw0KLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS05NTc0MmEwYmJkOGE5MjU3LS0NCg=="
->>> ctype = "multipart/form-data; boundary=------------------------95742a0bbd8a9257"
->>> args = { "__ow_body": body, "__ow_headers": { "content-type": ctype}, "__ow_method": "post" }
->>> _ = control.main(args)
->>> _id = model.find()["docs"][0]["_id"]
->>> args = { "__ow_path": "/"+_id}
->>> control.main(args)
-{'body': 'aGVsbG8K', 'headers': {'Content-Type': 'text/plain'}}
-  """
-  pass
-
 
 if __name__ == "__main__":
     import doctest

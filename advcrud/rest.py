@@ -3,6 +3,7 @@ import requests
 import json
  
 def load_props():
+    os.environ["__OW_ACTION_NAME"] = "/test/python/main"
     with open(os.path.expanduser("~/.wskprops"), "r") as f:
         for line in f.readlines():
             [k, v] = line.strip().split("=")

@@ -36,9 +36,9 @@ def find(id=None, bookmark=None):
   if id:
     query["selector"]["_id"] = id.split(":")[0]
   ret = rest.whisk_invoke("%s/exec-query-find" % db, {"query": query})
-  #print(ret)
-  for rec in ret["docs"]:
-    rec["id"] = "%s:%s" % (rec["_id"], rec["_rev"])
+  if "docs" in ret:
+    for rec in ret["docs"]:
+      rec["id"] = "%s:%s" % (rec["_id"], rec["_rev"])
   return ret
 
 def update(args):
@@ -89,6 +89,7 @@ def test():
     >>> import rest,model,json
     >>> rest.load_props()
     >>> model.init("advcruddb","test", 2)
+    >>> _ = model.clean()
     >>> args = {"name": "Mike", "email":"msciab@gmail.com"}
     >>> x = model.insert(args)
     >>> res = model.find()
