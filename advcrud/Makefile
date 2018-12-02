@@ -1,6 +1,6 @@
 include ../_config.mk
 
-deploy: advcrud.zip package.done bind.done validate.done
+deploy: advcrud.zip package.done bind.done validate.done index.done
 	wsk action update advcrud/main advcrud.zip -p db advcruddb --kind python:3 --web true
 	wsk action get advcrud/main --url
 
@@ -20,19 +20,18 @@ package.done:
 advcrud.zip: *.py
 	zip advcrud.zip *.py
 
-validate.json: validate.js
+_validate.json: validate.js
 	jq -n --rawfile file validate.js \
 	'{ "doc":{ "_id": "_design/validate", "validate_doc_update":$$file} }' \
-	>validate.json
+	>_validate.json
 
-validate.done: validate.json
+validate.done: _validate.json
 	! test -e validate.done
-	wsk action invoke advcruddb/create-document -P  validate.json -r | tee validate.done
+	wsk action invoke advcruddb/create-document -P  _validate.json -r | tee validate.done
 
 index.done:
 	wsk action invoke advcruddb/create-query-index -P index.json -r | tee index.done
 	
-
 clean:
 	-wsk action invoke advcruddb/delete-database
 	-wsk action delete advcrud/main
@@ -41,7 +40,9 @@ clean:
 	-rm bind.done
 	-rm package.done
 	-rm validate.done
+	-rm index.done
 	-rm advcrud.zip
+
 
 test: bind.done
 	python3 model.py

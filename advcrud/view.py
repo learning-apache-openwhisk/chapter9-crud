@@ -1,4 +1,5 @@
 import model
+import os
 
 BOOTSTRAP_CSS = "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
 BOOTSTRAP_JS = "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
@@ -36,9 +37,10 @@ def wrap(body):
 
 def rows(docs):
   """
->>> import view
+>>> import view, os
 >>> from bs4 import BeautifulSoup as BS
->>> docs = [{"id":"1","name":"Mike", "email":"a@b.c"}, {"id":"2","name":"Miri", "email":"m@s.c"}]
+>>> os.environ["__OW_ACTION_NAME"] = "/test/main"
+>>> docs = [{"id":"1","name":"Mike", "email":"a@b.c"}, {"id":"2","name":"Miri", "email":"m@s.c", "photo":"xxx"}]
 >>> ht = BS(view.rows(docs), "lxml")
 >>> print(ht.body.tbody)
 <tbody>
@@ -48,6 +50,7 @@ def rows(docs):
 </td>
 <td>Mike</td>
 <td>a@b.c</td>
+<td></td>
 </tr>
 <tr>
 <td scope="row">
@@ -55,10 +58,17 @@ def rows(docs):
 </td>
 <td>Miri</td>
 <td>m@s.c</td>
+<td><img src="/api/v1/web/test/main/2" width="200"/></td>
 </tr>
 </tbody>"""
   res = "<tbody>"
   for row in docs:
+    img = ""
+    if "photo" in row:
+      action = os.environ["__OW_ACTION_NAME"]
+      _id = row["id"].split(":")[0]
+      url = "/api/v1/web%s/%s" % (action, _id)
+      img = '<img width="200" src="%s">' % url
     res += """
  <tr>
   <td scope="row">
@@ -66,11 +76,12 @@ def rows(docs):
   </td>
   <td>%s</td>
   <td>%s</td>
+  <td>%s</td>
  </tr>
-""" % (row["id"], row["name"], row["email"])
+""" % (row["id"], row["name"], row["email"], img)
   return res+"</tbody>"
 
-def table(data, bookmark, error=None):
+def table(data, bookmark=None, error=None):
     """
     >>> from bs4 import BeautifulSoup as BS
     >>> import view
@@ -84,8 +95,16 @@ def table(data, bookmark, error=None):
     </td>
     <td>Max</td>
     <td>m@a.x</td>
+    <td></td>
     </tr>
     </tbody>
+    >>> tb = BS(view.table([], bookmark="123", error="Error"), "lxml")
+    >>> print(tb.find("div"))
+    <div class="alert alert-danger" role="alert"><b>Error</b>: Error <br/>
+    <a href="javascript:window.history.back()">Retry</a>
+    </div>
+    >>> print(tb.find_all("button")[-1])
+    <button class="btn btn-default" name="bookmark" type="submit" value="123">More...</button>
     """
     res = ""
     if error:
@@ -102,6 +121,7 @@ def table(data, bookmark, error=None):
      <th scope="col">#</th>
      <th scope="col">Name</th>
      <th scope="col">Email</th>
+     <th scope="col">Photo</th>
     </tr>
   </thead>"""
     res += rows(data)
@@ -141,7 +161,6 @@ def table(data, bookmark, error=None):
 >>> inp = [str(x) for x in fm.find_all("input")]
 >>> print("\n".join(inp))
 <input name="id" type="hidden" value="4"/>
-<input name="op" type="hidden" value="save"/>
 <input class="form-control" id="name" name="name" type="text" value="Laura"/>
 <input class="form-control" id="email" name="email" type="email" value="l@s.c"/>
 """
@@ -151,9 +170,13 @@ def form(args):
     id = """<input type="hidden" 
       name="id" value="%s">""" % (args["id"])
   return """
-<form method="post">
+<form method="post" enctype="multipart/form-data">
   %s
-  <input type="hidden" name="op" value="save">
+  <div class="form-group">
+    <label for="photo">Photo (optional):</label>
+    <input type="file" class="form-control" 
+     id="photo" name="photo">
+  </div>
   <div class="form-group">
     <label for="usr">Name:</label>
     <input type="text" class="form-control" 

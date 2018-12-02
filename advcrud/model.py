@@ -27,15 +27,16 @@ def insert(args, id=None):
 
 def find(id=None, bookmark=None):
   query = { 
-    "selector": {"type": dtype}, 
-    "limit": find_limit,
-    "sort": [{"name": "asc"}]  
+    "selector": {"type": dtype},
+    "sort": [{"name": "asc"}],
+    "limit": find_limit 
   }
   if bookmark:
     query["bookmark"] = bookmark
   if id:
     query["selector"]["_id"] = id.split(":")[0]
   ret = rest.whisk_invoke("%s/exec-query-find" % db, {"query": query})
+  #print(ret)
   for rec in ret["docs"]:
     rec["id"] = "%s:%s" % (rec["_id"], rec["_rev"])
   return ret
@@ -71,7 +72,18 @@ def delete(id):
   ret = rest.whisk_invoke("%s/delete-document" % db, params)
   return ret
 
-# import importlib ; importlib.reload(rest);importlib.reload(crud) ; crud.init("demodb","test")
+def clean():
+  ids = []
+  cur = find()
+  while cur["docs"]:
+    for doc in cur["docs"]:
+        id = doc["id"]
+        ids.append(id)
+        delete(id)
+    cur = find()
+  return ids
+
+
 def test():
     """
     >>> import rest,model,json
@@ -96,26 +108,30 @@ def test():
     >>> snd = res["docs"][0]
     >>> print(snd["name"])
     Miri
-
     >>> args = {"name":"Vin","email":"v@i.n"}
-    >>> model.insert(args, "test-vin")
+    >>> id2 = model.insert(args, "test-vin")
     >>> bk = model.find()["bookmark"]
-    >>> model.find(bookmark=bk)["docs"][0]["name"]
+    >>> print(model.find(bookmark=bk)["docs"][0]["name"])
     Vin
-
-    args = {"name":"Vin1","email":"v1@i.n"}
-    model.insert(args, "test-vin1")
-    args = {"name":"Zen","email":"z@e.n"}
-    model.insert(args, "test-zen")
-
-    
+    >>> args = {"name":"Vin1","email":"v1@i.n"}
+    >>> id3 = model.insert(args, "test-vin1")
+    >>> args = {"name":"Zen","email":"z@e.n"}
+    >>> id4 = model.insert(args, "test-zen")
+    >>> bk1 = model.find()["bookmark"]
+    >>> bk2 = model.find(bookmark=bk1)["bookmark"]
+    >>> print(model.find(bookmark=bk2)["docs"][0]["name"])
+    Zen
     >>> x = model.delete(id1) 
     >>> x = model.delete(nid)
+    >>> x = model.delete(id2)
+    >>> x = model.delete(id3)
+    >>> x = model.delete(id4)
     >>> res = model.find()
     >>> print(res["docs"])
     []
     """
     pass
+
 
 if __name__ == "__main__":
     import doctest
