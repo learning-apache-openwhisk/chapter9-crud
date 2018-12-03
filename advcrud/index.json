@@ -1,7 +1,9 @@
-{"index": {
-    "index": {
-        "fields": [
-            { "name": "asc" }
-        ]
-    }
-} }
+{
+  "index": {
+    "fields": [
+      {
+        "name": "asc"
+      }
+    ]
+  }
+}

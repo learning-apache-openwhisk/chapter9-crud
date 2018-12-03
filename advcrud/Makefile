@@ -25,12 +25,15 @@ _validate.json: validate.js
 	'{ "doc":{ "_id": "_design/validate", "validate_doc_update":$$file} }' \
 	>_validate.json
 
+_index.json: index.json
+	jq -n --slurpfile index index.json '{"index": $$index[0]}' >_index.json
+
 validate.done: _validate.json
 	! test -e validate.done
 	wsk action invoke advcruddb/create-document -P  _validate.json -r | tee validate.done
 
-index.done:
-	wsk action invoke advcruddb/create-query-index -P index.json -r | tee index.done
+index.done: _index.json
+	wsk action invoke advcruddb/create-query-index -P _index.json -r | tee index.done
 	
 clean:
 	-wsk action invoke advcruddb/delete-database
