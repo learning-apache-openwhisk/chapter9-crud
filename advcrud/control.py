@@ -111,10 +111,11 @@ def main(args):
     # post data
     if "__ow_body" in args:
       fields, files = form_parse(args)
+      filled = fill(fields, files)
       if "id" in fields:
-        model.update(fill(fields, files))
+        model.update(filled)
       else:
-        model.insert(fill(fields, files))
+        model.insert(filled)
     
     # handle other ops
     op = ""

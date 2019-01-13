@@ -10,7 +10,7 @@ bind.done:
     -p password "$(CLOUDANT_PASS)" \
     -p host "$(CLOUDANT_USER).cloudant.com" \
     -p dbname advcruddb
-	wsk action invoke advcruddb/create-database -r
+	-wsk action invoke advcruddb/create-database -r
 	touch bind.done
 
 package.done:
